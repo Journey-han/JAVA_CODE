@@ -1,2 +1,2 @@
 # JAVA_CODE
-FastCampus Java Class Code
+Java Class Code With FastCampus JAVA Course
