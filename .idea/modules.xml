@@ -7,6 +7,7 @@
       <module fileurl="file://$PROJECT_DIR$/Chapter03_Oop2/Chapter03_Oop2.iml" filepath="$PROJECT_DIR$/Chapter03_Oop2/Chapter03_Oop2.iml" />
       <module fileurl="file://$PROJECT_DIR$/Chapter04_Class/Chapter04_Class.iml" filepath="$PROJECT_DIR$/Chapter04_Class/Chapter04_Class.iml" />
       <module fileurl="file://$PROJECT_DIR$/Chapter05_DataStructure/Chapter05_DataStructure.iml" filepath="$PROJECT_DIR$/Chapter05_DataStructure/Chapter05_DataStructure.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Chapter06_JavaAPI/Chapter06_JavaAPI.iml" filepath="$PROJECT_DIR$/Chapter06_JavaAPI/Chapter06_JavaAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/JAVA_CODE.iml" filepath="$PROJECT_DIR$/.idea/JAVA_CODE.iml" />
     </modules>
   </component>
