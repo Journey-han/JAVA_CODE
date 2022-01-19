@@ -75,6 +75,5 @@ public class SyncMain {
 
         Kim kim = new Kim();
         kim.start();
-
     }
 }
