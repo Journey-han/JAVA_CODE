@@ -53,8 +53,7 @@
 ### 클래스 정의하고 관계도 그리기
 |First|Second|
 |:-:|:-:|
-|![클래스다이어그램](https://t1.daumcdn.net/cafeattach/1Dzpp/65effe0ffd14a440873956f1aa55cd0fe9a5f972)|
-|![diagram](https://t1.daumcdn.net/cafeattach/1Dzpp/f085501d1e7d5943f8d2222ad481435a93c3d1de)|
+|![클래스다이어그램](https://t1.daumcdn.net/cafeattach/1Dzpp/65effe0ffd14a440873956f1aa55cd0fe9a5f972)|![diagram](https://t1.daumcdn.net/cafeattach/1Dzpp/f085501d1e7d5943f8d2222ad481435a93c3d1de)|
 
 - **Student.java**
 
