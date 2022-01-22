@@ -557,14 +557,36 @@ public class TestMain {
 
 - 상수값 추가하기 **Define.java**
 
-```
+```java
+public class Define {
 
+    ...
+    
+    public static final int DANCE = 3001;        // 댄스
+
+    ...
+    
+    public static final int PF_TYPE = 2;       // PASS, FAIL
+
+}
 ```
 
 - GradeEvaluation 인터페이스를 구현한 Pass/Fail BasicEvaluation
   PassFailEvaluation
 
-```
+```java
+public class PassFailEvaluation implements GradeEvaluation {
+
+    @Override
+    public String getGrade(int point) {
+
+        if (point >= 70) {
+            return "P";
+        } else {
+            return "F";
+        }
+    }
+}
 
 ```
 
