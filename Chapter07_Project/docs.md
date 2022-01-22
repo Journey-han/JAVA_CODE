@@ -44,16 +44,17 @@
 
 **국어 과목 결과**
 
-![국어](https://t1.daumcdn.net/cafeattach/1Dzpp/ce6462208f6d9c0c236c973c6bbee10b13a405af)
+![국어](https://t1.daumcdn.net/cafeattach/1Dzpp/627d1fa8e88857c3609b1337cf3a2f97c08bad3a)
 
 **수학 과목 결과**
 
-![수학](https://t1.daumcdn.net/cafeattach/1Dzpp/159acea7654acb8a1d255e7ef2843ab7b8c91979)
+![수학](https://t1.daumcdn.net/cafeattach/1Dzpp/ffbb2389b25fb4beaf9d10fdb1e7661a07b2f8f7)
 
 ### 클래스 정의하고 관계도 그리기
 |First|Second|
 |:-:|:-:|
-|![클래스다이어그램](https://t1.daumcdn.net/cafeattach/1Dzpp/65effe0ffd14a440873956f1aa55cd0fe9a5f972)|![diagram](https://t1.daumcdn.net/cafeattach/1Dzpp/f085501d1e7d5943f8d2222ad481435a93c3d1de)|
+|![클래스다이어그램](https://t1.daumcdn.net/cafeattach/1Dzpp/65effe0ffd14a440873956f1aa55cd0fe9a5f972)|
+|![diagram](https://t1.daumcdn.net/cafeattach/1Dzpp/f085501d1e7d5943f8d2222ad481435a93c3d1de)|
 
 - **Student.java**
 
@@ -239,24 +240,69 @@ public class Define {
 
 - **GradeEvaluation.java**
 
-```
+```java
+public interface GradeEvaluation {
 
+    public String getGrade(int point);
+}
 ```
 
 일반 과목 학점에 대한 클래스 구현
 
 - **BasicEvaluation.java**
 
-```
+```java
+public class BasicEvaluation implements GradeEvaluation{
 
+
+    @Override
+    public String getGrade(int point) {
+
+        String grade;
+
+        if(point >= 90 && point <= 100) {
+            grade = "A";
+        } else if (point >= 80 && point <= 89) {
+            grade = "B";
+        } else if (point >= 70 && point <= 79) {
+            grade = "C";
+        } else if (point >= 55 && point <= 69) {
+            grade = "D";
+        } else {
+            grade = "F";
+        }
+        return grade;
+    }
+}
 ```
 
 필수 과목 학점에 대한 클래스 구현
 
 - **MajorEvaluation.java**
 
-```
+```java
+public class MajorEvaluation implements GradeEvaluation {
+    @Override
+    public String getGrade(int point) {
 
+        String grade;
+
+        if(point >= 95 && point <= 100) {
+            grade = "S";
+        } else if (point >= 90 && point <= 94) {
+            grade = "A";
+        } else if (point >= 80 && point <= 89) {
+            grade = "B";
+        }else if (point >= 70 && point <= 79) {
+            grade = "C";
+        } else if (point >= 55 && point <= 69) {
+            grade = "D";
+        } else {
+            grade = "F";
+        }
+        return grade;
+    }
+}
 ```
 
 ### 리포트 클래스
@@ -267,8 +313,92 @@ public class Define {
 
 
 - **GenerateGradeReport.java**
-```
 
+```java
+import grade.BasicEvaluation;
+import grade.GradeEvaluation;
+import grade.MajorEvaluation;
+import school.School;
+import school.Score;
+import school.Student;
+import school.Subject;
+import utils.Define;
+
+import java.util.ArrayList;
+
+public class GenerateGradeReport {
+
+    School school = School.getInstance();
+    public static final String TITLE = " 수강생 학점 \t\t\n";
+    public static final String HEADER = " 이름  |  학번  |중점과목| 점수   \n";
+    public static final String LINE = "-------------------------------------\n";
+    private StringBuffer buffer = new StringBuffer();
+
+    public String getReport(){
+        ArrayList<Subject> subjectList = school.getSubjectList();  // 모든 과목에 대한 학점 산출
+        for( Subject subject : subjectList) {
+            makeHeader(subject);
+            makeBody(subject);
+            makeFooter();
+        }
+        return buffer.toString();  // String 으로 반환
+    }
+
+    public void makeHeader(Subject subject){
+        buffer.append(GenerateGradeReport.LINE);
+        buffer.append("\t" + subject.getSubjectName());
+        buffer.append(GenerateGradeReport.TITLE );
+        buffer.append(GenerateGradeReport.HEADER );
+        buffer.append(GenerateGradeReport.LINE);
+    }
+
+    public void makeBody(Subject subject){
+
+        ArrayList<Student> studentList = subject.getStudentList();  // 각 과목의 학생들
+
+        for(int i=0; i<studentList.size(); i++){
+            Student student = studentList.get(i);
+            buffer.append(student.getStudentName());
+            buffer.append(" | ");
+            buffer.append(student.getStudentId());
+            buffer.append(" | ");
+            buffer.append(student.getMajorSubject().getSubjectName() + "\t");
+            buffer.append(" | ");
+
+            getScoreGrade(student, subject.getSubjectId());  //학생별 해당과목 학점 계산
+            buffer.append("\n");
+            buffer.append(LINE);
+        }
+    }
+
+    public void getScoreGrade(Student student, int subjectId){
+
+        ArrayList<Score> scoreList = student.getScoreList();
+        int majorId = student.getMajorSubject().getSubjectId();
+
+        GradeEvaluation[] gradeEvaluation = {new BasicEvaluation(), new MajorEvaluation()};  //학점 평가 클래스들
+
+        for(int i=0; i<scoreList.size(); i++){  // 학생이 가진 점수들
+
+            Score score = scoreList.get(i);
+            if(score.getSubject().getSubjectId() == subjectId) {  // 현재 학점을 산출할 과목
+                String grade;
+                if(score.getSubject().getSubjectId() == majorId)  // 중점 과목인 경우
+                    grade = gradeEvaluation[Define.SAB_TYPE].getGrade(score.getPoint());  //중점 과목 학점 평가 방법
+                else
+                    grade = gradeEvaluation[Define.AB_TYPE].getGrade(score.getPoint()); // 중점 과목이 아닌 경우
+                buffer.append(score.getPoint());
+                buffer.append(":");
+                buffer.append(grade);
+                buffer.append(" | ");
+            }
+        }
+    }
+
+    public void makeFooter(){
+        buffer.append("\n");
+    }
+}
 ```
 
 ### 프로그램 테스트 하기
@@ -278,14 +408,145 @@ public class Define {
 
 - **School.java**
 
-```
+```java
+import java.util.ArrayList;
 
+public class School {
+
+    private static School instance = new School();
+
+    private static String SCHOOL_NAME = "Good School";
+    private ArrayList<Student> studentList = new ArrayList<Student>();
+    private ArrayList<Subject> subjectList = new ArrayList<Subject>();
+
+    private School() {
+
+    }
+
+    public static School getInstance() {
+        if (instance == null) {
+            instance = new School();
+        }
+        return instance;
+    }
+
+    public ArrayList<Student> getStudentList() {
+        return studentList;
+    }
+
+    public void setStudentList(ArrayList<Student> studentList) {
+        this.studentList = studentList;
+    }
+
+    public ArrayList<Subject> getSubjectList() {
+        return subjectList;
+    }
+
+    public void setSubjectList(ArrayList<Subject> subjectList) {
+        this.subjectList = subjectList;
+    }
+
+    public void addStudent(Student student) {
+        studentList.add(student);
+    }
+
+    public void addSubject(Subject subject) {
+        subjectList.add(subject);
+    }
+}
 ```
 
 - **TestMain.java**
 
-```
+```java
+import school.School;
+import school.Score;
+import school.Student;
+import school.Subject;
+import school.report.GenerateGradeReport;
+import utils.Define;
 
+public class TestMain {
+
+    School goodSchool = School.getInstance();
+    Subject korean;
+    Subject math;
+
+    GenerateGradeReport gradeReport = new GenerateGradeReport();
+
+    public static void main(String[] args) {
+
+        TestMain test = new TestMain();
+
+        test.createSubject();
+        test.createStudent();
+
+        String report = test.gradeReport.getReport();   // 성적 결과 생성
+        System.out.println(report);                     // 출력
+    }
+
+    // 테스트 과목 생성
+    public void createSubject() {
+
+        korean = new Subject("국어", Define.KOREAN);
+        math = new Subject("수학", Define.MATH);
+
+        goodSchool.addSubject(korean);
+        goodSchool.addSubject(math);
+    }
+
+    // 테스트 학생 생성
+    public void createStudent() {
+
+        Student student1 = new Student(211213, "이둘리", korean);
+        Student student2 = new Student(212330, "신짱구", math);
+        Student student3 = new Student(201518, "김또치", korean);
+        Student student4 = new Student(201518, "남코난", korean);
+        Student student5 = new Student(201290, "박세모", math);
+
+        goodSchool.addStudent(student1);
+        goodSchool.addStudent(student2);
+        goodSchool.addStudent(student3);
+        goodSchool.addStudent(student4);
+        goodSchool.addStudent(student5);
+
+        korean.register(student1);
+        korean.register(student2);
+        korean.register(student3);
+        korean.register(student4);
+        korean.register(student5);
+
+        math.register(student1);
+        math.register(student2);
+        math.register(student3);
+        math.register(student4);
+        math.register(student5);
+
+        addScoreForStudent(student1, korean, 95);
+        addScoreForStudent(student1, math, 56);
+
+        addScoreForStudent(student2, korean, 95);
+        addScoreForStudent(student2, math, 95);
+
+        addScoreForStudent(student3, korean, 100);
+        addScoreForStudent(student3, math, 88);
+
+        addScoreForStudent(student4, korean, 89);
+        addScoreForStudent(student4, math, 95);
+
+        addScoreForStudent(student5, korean, 85);
+        addScoreForStudent(student5, math, 56);
+
+    }
+
+    //과목별 성적 입력
+    public void addScoreForStudent(Student student, Subject subject, int point){
+
+        Score score = new Score(student.getStudentId(), subject, point);
+        student.addSubjectScore(score);
+
+    }
+}
 ```
 
 ### 프로그램 업그레이드 하기
@@ -316,18 +577,75 @@ public class Define {
 
 - **GenerateGradeReport**
 
-```
+```java
+public void getScoreGrade(Student student, int subjectId){
 
+        ...
+        
+        GradeEvaluation[] gradeEvaluation = {new BasicEvaluation(), new MajorEvaluation(), new PassFailEvaluation()};  //학점 평가 클래스들
+
+        for(int i=0; i<scoreList.size(); i++){  // 학생이 가진 점수들
+
+            Score score = scoreList.get(i);
+            if(score.getSubject().getSubjectId() == subjectId) {  // 현재 학점을 산출할 과목
+                String grade;
+                if (score.getSubject().getGradeType() == Define.PF_TYPE) {
+                    grade = gradeEvaluation[Define.PF_TYPE].getGrade(score.getPoint());
+                } else {
+                    if (score.getSubject().getSubjectId() == majorId) {  // 중점 과목인 경우
+                        grade = gradeEvaluation[Define.SAB_TYPE].getGrade(score.getPoint());  //중점 과목 학점 평가 방법
+                    } else {
+                        grade = gradeEvaluation[Define.AB_TYPE].getGrade(score.getPoint()); // 중점 과목이 아닌 경우
+                    }
+                }
+                ...
+            }
+        }
+    }
 ```
 
 - 테스트 클래스에 문제의 셋을 추가하여 학점을 출력해 봅니다.
 
 - **TestMain.java**
 
-```
+```java
+    // 테스트 과목 생성
+public void createSubject() {
 
+        dance = new Subject("방송댄스", Define.DANCE);
+
+        dance.setGradeType(Define.PF_TYPE);
+
+        goodSchool.addSubject(dance);
+}
+
+...
+
+public void createSubject() {
+    
+        dance = new Subject("방송댄스", Define.DANCE);
+
+        dance.setGradeType(Define.PF_TYPE);
+        
+        goodSchool.addSubject(dance);
+}
+
+// 테스트 학생 생성
+public void createStudent() {
+
+        ...
+        
+        dance.register(student1);
+        dance.register(student2);
+        dance.register(student3);
+
+        addScoreForStudent(student1, dance, 95);
+        addScoreForStudent(student2, dance, 85);
+        addScoreForStudent(student3, dance, 55);
+
+}
 ```
 
 - 예상 결과
 
-![result](https://t1.daumcdn.net/cafeattach/1Dzpp/a7889ec7ca0dfe705436f132a1840149b03f6cef)
+![result](https://t1.daumcdn.net/cafeattach/1Dzpp/9dfd839733bfa4962a9b9f3cc1c17b890d5210dc)
